@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
+// Imports sirf ek baar
 import {
   Shield,
   Heart,
@@ -21,15 +22,6 @@ import {
   Monitor,
   PhoneCall,
   AlertCircle,
-} from "lucide-react-native";
-import {
-  Shield,
-  Heart,
-  ShieldAlert,
-  Search,
-  Users,
-  Monitor,
-  PhoneCall,
 } from "lucide-react-native";
 import { COLORS, FONTS, SPACING, RADIUS } from "../constants/theme";
 
@@ -75,7 +67,7 @@ const services = [
   },
 ];
 
-// Placeholder Images (Apni images ka URL ya require yahan daalo)
+// Local Images Path
 const HERO_IMAGES = [
   require("../assets/hero1.jpg"),
   require("../assets/hero2.jpg"),
@@ -176,7 +168,9 @@ export default function HomeScreen() {
           <Text style={styles.heroTitleSub}>
             TRAINING CENTER RAJAHI CAMP GORAKHPUR
           </Text>
-          <Text style={styles.heroTagline}>रेलवे सुरक्षा विशेष बल</Text>
+          <Text style={styles.heroTagline}>
+            RAILWAY PROTECTION SPECIAL FORCE
+          </Text>
         </View>
 
         {/* Slider Dots */}
@@ -462,56 +456,56 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
 
-    // Emergency Section New Design
+  // Emergency Section New Design
   emergencySection: {
     margin: SPACING.md,
-    backgroundColor: '#FFF', // White card
+    backgroundColor: "#FFF",
     borderRadius: RADIUS.card,
     borderWidth: 1,
-    borderColor: '#FEE2E2', // Light red border
+    borderColor: "#FEE2E2",
     padding: SPACING.md,
     elevation: 4,
-    shadowColor: '#DC2626',
+    shadowColor: "#DC2626",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     marginBottom: SPACING.xl,
   },
   emergencyHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
     marginBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#FEF2F2',
+    borderBottomColor: "#FEF2F2",
     paddingBottom: 12,
   },
   emergencyTitle: {
     fontFamily: FONTS.semiBold,
     fontSize: 16,
-    color: '#991B1B', // Dark red
+    color: "#991B1B",
   },
   emergencyBody: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   emergencyNumber: {
     fontFamily: FONTS.semiBold,
-    fontSize: 32, // Bada number
-    color: '#DC2626',
+    fontSize: 32,
+    color: "#DC2626",
     lineHeight: 36,
   },
   emergencyDesc: {
     fontFamily: FONTS.regular,
     fontSize: 12,
-    color: '#B91C1C',
+    color: "#991B1B",
     marginTop: 4,
   },
   btnEmergency: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#DC2626',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#DC2626",
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: RADIUS.button,
@@ -521,5 +515,5 @@ const styles = StyleSheet.create({
     color: COLORS.surface,
     fontFamily: FONTS.semiBold,
     fontSize: 14,
-  }
-  });
+  },
+});
