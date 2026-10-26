@@ -12,6 +12,12 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import LoginScreen from "./app/LoginScreen";
 import TabNavigator from "./app/TabNavigator";
+import UpdateProfileScreen from "./app/UpdateProfileScreen";
+import ChangePasswordScreen from "./app/ChangePasswordScreen";
+import IdCardScreen from "./app/IdCardScreen";
+import ResultsScreen from "./app/ResultsScreen";
+import ResultDetailScreen from "./app/ResultDetailScreen"; // 
+import SupportScreen from "./app/SupportScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -51,9 +57,28 @@ export default function App() {
               {(props) => <LoginScreen {...props} setAuth={setIsLoggedIn} />}
             </Stack.Screen>
           ) : (
-            <Stack.Screen name="Main">
-              {(props) => <TabNavigator {...props} setAuth={setIsLoggedIn} />}
-            </Stack.Screen>
+            <>
+              <Stack.Screen name="Main">
+                {(props) => <TabNavigator {...props} setAuth={setIsLoggedIn} />}
+              </Stack.Screen>
+
+              <Stack.Screen
+                name="UpdateProfile"
+                component={UpdateProfileScreen}
+                options={{ presentation: "modal" }}
+              />
+              <Stack.Screen
+                name="ChangePassword"
+                component={ChangePasswordScreen}
+              />
+              <Stack.Screen name="IdCard" component={IdCardScreen} />
+              <Stack.Screen name="Results" component={ResultsScreen} />
+              <Stack.Screen
+                name="ResultDetail"
+                component={ResultDetailScreen}
+              />
+              <Stack.Screen name="Support" component={SupportScreen} />
+            </>
           )}
         </Stack.Navigator>
       </NavigationContainer>
