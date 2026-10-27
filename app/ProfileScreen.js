@@ -23,6 +23,7 @@ import {
   AlertCircle,
   Clock,
   CheckCircle,
+  Star,
 } from "lucide-react-native";
 import {
   getUserProfile,
@@ -84,7 +85,8 @@ export default function ProfileScreen({ setAuth }) {
       id === "ChangePassword" ||
       id === "IdCard" ||
       id === "Results" ||
-      id === "Support"
+      id === "Support" ||
+      id === "Feedback"
     ) {
       navigation.getParent()?.navigate(id);
     } else {
@@ -120,6 +122,7 @@ export default function ProfileScreen({ setAuth }) {
     { id: "ChangePassword", title: "Change Password", icon: Lock },
     { id: "Results", title: "All Results", icon: FileText }, // 👈 Capital R
     { id: "Support", title: "Support Tickets", icon: Headphones },
+    { id: "Feedback", title: "App Feedback", icon: Star },
   ];
 
   return (

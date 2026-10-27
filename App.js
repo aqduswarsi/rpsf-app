@@ -18,6 +18,8 @@ import IdCardScreen from "./app/IdCardScreen";
 import ResultsScreen from "./app/ResultsScreen";
 import ResultDetailScreen from "./app/ResultDetailScreen"; // 
 import SupportScreen from "./app/SupportScreen";
+import ExamAttemptScreen from "./app/ExamAttemptScreen";
+import FeedbackScreen from "./app/FeedbackScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -78,6 +80,8 @@ export default function App() {
                 component={ResultDetailScreen}
               />
               <Stack.Screen name="Support" component={SupportScreen} />
+              <Stack.Screen name="ExamAttempt" component={ExamAttemptScreen} />
+              <Stack.Screen name="Feedback" component={FeedbackScreen} />
             </>
           )}
         </Stack.Navigator>

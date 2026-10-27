@@ -75,7 +75,6 @@ export default function ResultsScreen() {
         style={styles.resultCard}
         activeOpacity={0.7}
         onPress={() =>
-          // 👇 Yahan getParent() lagaya hai
           navigation
             .getParent()
             ?.navigate("ResultDetail", { resultId: item._id })
