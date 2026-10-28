@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import {
   FileText,
   ChevronRight,
@@ -22,6 +22,9 @@ import { COLORS, FONTS, SPACING, RADIUS } from "../constants/theme";
 export default function ResultsScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+  const route = useRoute();
+
+  const filter = route.params?.filter || "All";
 
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +33,17 @@ export default function ResultsScreen() {
     async function fetchResults() {
       try {
         const data = await getMyResults();
-        setResults(data);
+
+        let filteredData = data;
+        if (filter === "Pass") {
+          filteredData = data.filter((r) => r.status === "Pass");
+        } else if (filter === "Fail") {
+          filteredData = data.filter((r) => r.status === "Fail");
+        } else if (filter === "pending") {
+          filteredData = data.filter((r) => r.status === "pending");
+        }
+
+        setResults(filteredData);
       } catch (err) {
         console.log("Error loading results:", err);
       } finally {
@@ -38,7 +51,7 @@ export default function ResultsScreen() {
       }
     }
     fetchResults();
-  }, []);
+  }, [filter]);
 
   if (loading) {
     return (
@@ -75,9 +88,8 @@ export default function ResultsScreen() {
         style={styles.resultCard}
         activeOpacity={0.7}
         onPress={() =>
-          navigation
-            .getParent()
-            ?.navigate("ResultDetail", { resultId: item._id })
+          // 👇 Yahan getParent() hata diya hai
+          navigation.navigate("ResultDetail", { resultId: item._id })
         }
       >
         <View style={styles.cardLeft}>
@@ -114,7 +126,9 @@ export default function ResultsScreen() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Exam Results</Text>
+        <Text style={styles.headerTitle}>
+          {filter === "All" ? "My Exam Results" : `${filter} Results`}
+        </Text>
         <Text style={styles.headerSub}>
           Total {results.length} attempt{results.length !== 1 ? "s" : ""}
         </Text>

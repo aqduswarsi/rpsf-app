@@ -46,11 +46,11 @@ export default function UpdateProfileScreen() {
     religion: "",
     category: "",
     caste: "",
-    photo: "", // Base64 photo store karne ke liye
+    photo: "", // Stores the photo as a Base64 string
     mobileNumber: "",
   });
 
-  // 1. Data Fetch karo
+  // 1. Fetch profile data
   useEffect(() => {
     async function loadProfile() {
       try {
@@ -80,18 +80,18 @@ export default function UpdateProfileScreen() {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 0.5, // Quality thodi kam rakhi taaki base64 lamba na ho aur backend crash na kare
+      quality: 0.5, // Reduce the Base64 payload size
       base64: true,
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      // Base64 ko form me save karo
+      // Save the Base64 image to the form
       const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
       setForm((prev) => ({ ...prev, photo: base64Image }));
     }
   };
 
-  // 2. Data Save karo
+  // 2. Save profile data
   const handleSave = async () => {
     if (!form.nameEnglish.trim()) {
       return Alert.alert("Error", "Name (English) is required.");

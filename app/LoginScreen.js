@@ -72,7 +72,7 @@ export default function LoginScreen({ setAuth }) {
               icon={User}
               value={phone}
               onChangeText={setPhone}
-              placeholder="e.g. 9876543210"
+              placeholder="Mobile Number"
               keyboardType="phone-pad"
               maxLength={10}
               error={phoneError}
@@ -86,7 +86,7 @@ export default function LoginScreen({ setAuth }) {
               icon={Lock}
               value={password}
               onChangeText={setPassword}
-              placeholder="DDMMYYYY"
+              placeholder="Password"
               secureTextEntry
               error={passwordError}
               returnKeyType="done"

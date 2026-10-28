@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Image, StyleSheet, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -16,21 +17,28 @@ import UpdateProfileScreen from "./app/UpdateProfileScreen";
 import ChangePasswordScreen from "./app/ChangePasswordScreen";
 import IdCardScreen from "./app/IdCardScreen";
 import ResultsScreen from "./app/ResultsScreen";
-import ResultDetailScreen from "./app/ResultDetailScreen"; // 
+import ResultDetailScreen from "./app/ResultDetailScreen";
 import SupportScreen from "./app/SupportScreen";
 import ExamAttemptScreen from "./app/ExamAttemptScreen";
 import FeedbackScreen from "./app/FeedbackScreen";
+import PdfViewerScreen from "./app/PdfViewerScreen";
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [checkingToken, setCheckingToken] = useState(true);
+  const [minimumSplashTimePassed, setMinimumSplashTimePassed] = useState(false);
   const [fontsLoaded] = useFonts({
     IBMPlexSans_400Regular,
     IBMPlexSans_500Medium,
     IBMPlexSans_600SemiBold,
   });
+
+  useEffect(() => {
+    const timer = setTimeout(() => setMinimumSplashTimePassed(true), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     async function checkToken() {
@@ -48,7 +56,17 @@ export default function App() {
     checkToken();
   }, []);
 
-  if (!fontsLoaded || checkingToken) return null;
+  if (!fontsLoaded || checkingToken || !minimumSplashTimePassed) {
+    return (
+      <View style={styles.splash}>
+        <Image
+          source={require("./assets/splash-icon.png")}
+          resizeMode="contain" // 👈 Crop nahi hoga, puri image dikhegi
+          style={styles.splashImage}
+        />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaProvider>
@@ -82,6 +100,7 @@ export default function App() {
               <Stack.Screen name="Support" component={SupportScreen} />
               <Stack.Screen name="ExamAttempt" component={ExamAttemptScreen} />
               <Stack.Screen name="Feedback" component={FeedbackScreen} />
+              <Stack.Screen name="PdfViewer" component={PdfViewerScreen} />
             </>
           )}
         </Stack.Navigator>
@@ -89,3 +108,16 @@ export default function App() {
     </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  splash: {
+    flex: 1,
+    backgroundColor: "#ffffff", // Background color, agar upar/neeche space bache to yahan se fill hoga
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  splashImage: {
+    width: "100%",
+    height: "100%",
+  },
+});

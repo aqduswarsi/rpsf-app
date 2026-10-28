@@ -23,7 +23,7 @@ import {
   AlertCircle,
   Clock,
   CheckCircle,
-  Star,
+  MessageSquare,
 } from "lucide-react-native";
 import {
   getUserProfile,
@@ -78,7 +78,7 @@ export default function ProfileScreen({ setAuth }) {
     setAuth(false);
   };
 
-  // App.js wali screens (Stack) ke liye getParent use karo
+  // Use the parent navigator for screens registered in App.js's stack
   const handleNavigate = (id) => {
     if (
       id === "UpdateProfile" ||
@@ -120,9 +120,9 @@ export default function ProfileScreen({ setAuth }) {
     { id: "UpdateProfile", title: "Edit Profile", icon: User },
     { id: "IdCard", title: "Digital ID Card", icon: CreditCard },
     { id: "ChangePassword", title: "Change Password", icon: Lock },
-    { id: "Results", title: "All Results", icon: FileText }, // 👈 Capital R
+    { id: "Results", title: "All Results", icon: FileText }, // Match the route name's capitalization
     { id: "Support", title: "Support Tickets", icon: Headphones },
-    { id: "Feedback", title: "App Feedback", icon: Star },
+    { id: "Feedback", title: "Training Feedback", icon: MessageSquare },
   ];
 
   return (
@@ -145,34 +145,43 @@ export default function ProfileScreen({ setAuth }) {
         </TouchableOpacity>
       </View>
 
+      {/* STATS SECTION */}
       <View style={styles.statsGrid}>
         <StatCard
           title="Total Exams"
           count={stats.total}
           color={COLORS.blue}
           icon={FileText}
-          onPress={() => handleNavigate("Results")} // 👈 Fix kiya
+          onPress={() =>
+            navigation.getParent()?.navigate("Results", { filter: "All" })
+          }
         />
         <StatCard
           title="Passed"
           count={stats.passed}
           color="#16A34A"
           icon={CheckCircle}
-          onPress={() => handleNavigate("Results")}
+          onPress={() =>
+            navigation.getParent()?.navigate("Results", { filter: "Pass" })
+          }
         />
         <StatCard
           title="Failed"
           count={stats.failed}
           color={COLORS.error}
           icon={AlertCircle}
-          onPress={() => handleNavigate("Results")}
+          onPress={() =>
+            navigation.getParent()?.navigate("Results", { filter: "Fail" })
+          }
         />
         <StatCard
           title="Pending"
           count={stats.pending}
           color="#D97706"
           icon={Clock}
-          onPress={() => handleNavigate("Results")}
+          onPress={() =>
+            navigation.getParent()?.navigate("Results", { filter: "pending" })
+          }
         />
       </View>
 

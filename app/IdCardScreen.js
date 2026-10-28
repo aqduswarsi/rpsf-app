@@ -29,7 +29,7 @@ import { Asset } from "expo-asset";
 import { getUserProfile, updateUserProfile } from "../lib/api";
 import { COLORS, FONTS, SPACING, RADIUS } from "../constants/theme";
 
-// Logo ko local asset se base64 me convert karne ka helper
+// Convert the local logo asset to Base64
 const getLogoBase64 = async () => {
   try {
     const asset = Asset.fromModule(require("../assets/rpsf-logo.png"));
@@ -55,7 +55,7 @@ export default function IdCardScreen() {
   const [saving, setSaving] = useState(false);
   const [photoChanged, setPhotoChanged] = useState(false);
 
-  // Print me logo dikhane ke liye base64 state
+  // Base64 logo data used when printing
   const [logoBase64, setLogoBase64] = useState("");
 
   useEffect(() => {
@@ -141,7 +141,7 @@ export default function IdCardScreen() {
         }
       }
 
-      // Agar logo abhi tak load nahi hua to print se pehle dobara load karo
+      // Load the logo before printing if it is not already available
       let logo = logoBase64;
       if (!logo) {
         logo = await getLogoBase64();

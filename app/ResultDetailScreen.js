@@ -17,8 +17,6 @@ export default function ResultDetailScreen() {
   const insets = useSafeAreaInsets();
   const route = useRoute();
   const navigation = useNavigation();
-
-  // Route se resultId nikalo
   const { resultId } = route.params;
 
   const [result, setResult] = useState(null);
@@ -58,86 +56,129 @@ export default function ResultDetailScreen() {
   }
 
   const isPassed = result.status === "Pass";
-  let StatusIcon = Clock;
-  let statusColor = "#D97706";
-  if (result.status === "Pass") {
-    StatusIcon = CheckCircle;
-    statusColor = "#16A34A";
-  } else if (result.status === "Fail") {
-    StatusIcon = XCircle;
-    statusColor = COLORS.error;
-  }
+  const statusColor = isPassed
+    ? "#16A34A"
+    : result.status === "Fail"
+      ? COLORS.error
+      : "#D97706";
+  const StatusIcon = isPassed
+    ? CheckCircle
+    : result.status === "Fail"
+      ? XCircle
+      : Clock;
+
+  const examTitle = result.examId?.title || "Exam";
+  const courseName = result.courseId?.name || "Course";
+  const subjectName = result.subjectId?.name || "Subject";
 
   return (
     <View style={styles.screen}>
+      {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backBtn}
         >
-          <ChevronLeft color={COLORS.ink} size={24} />
+          <ChevronLeft color={COLORS.navy} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Result Details</Text>
+        <Text style={styles.headerTitle} numberOfLines={1}>
+          Result — {examTitle}
+        </Text>
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: insets.bottom + SPACING.xl },
-        ]}
-      >
+      <ScrollView contentContainerStyle={styles.content}>
+        {/* Summary Card */}
         <View style={styles.summaryCard}>
-          <Text style={styles.examTitle}>{result.examId?.title || "Exam"}</Text>
-
-          <View style={styles.scoreRow}>
-            <Text style={styles.score}>
-              {result.totalScore}/{result.maxScore}
-            </Text>
-            <View style={styles.statusWrap}>
-              <StatusIcon color={statusColor} size={18} />
-              <Text style={[styles.status, { color: statusColor }]}>
-                {result.status}
-              </Text>
+          <View style={styles.summaryRow}>
+            <View style={styles.summaryCol}>
+              <Text style={styles.summaryLabel}>COURSE</Text>
+              <Text style={styles.summaryValue}>{courseName}</Text>
+            </View>
+            <View style={styles.summaryCol}>
+              <Text style={styles.summaryLabel}>SUBJECT</Text>
+              <Text style={styles.summaryValue}>{subjectName}</Text>
             </View>
           </View>
-          <Text style={styles.percentage}>{result.percentage}% Score</Text>
-        </View>
 
-        <Text style={styles.sectionTitle}>Question Breakdown</Text>
-
-        {result.answers &&
-          result.answers.map((ans, index) => (
-            <View key={ans.questionId || index} style={styles.answerCard}>
-              <View style={styles.qHeader}>
-                <Text style={styles.qNumber}>Q{index + 1}.</Text>
-                <Text style={styles.qType}>{ans.type}</Text>
-                <Text
-                  style={[
-                    styles.qMarks,
-                    { color: ans.isCorrect ? "#16A34A" : COLORS.error },
-                  ]}
-                >
-                  {ans.marks}/{ans.maxMarks} Marks
+          <View style={[styles.summaryRow, { marginTop: 16 }]}>
+            <View style={styles.summaryCol}>
+              <Text style={styles.summaryLabel}>SCORE</Text>
+              <Text style={styles.summaryValueBold}>
+                {result.totalScore}/{result.maxScore} ({result.percentage}%)
+              </Text>
+            </View>
+            <View style={styles.summaryCol}>
+              <Text style={styles.summaryLabel}>STATUS</Text>
+              <View style={styles.statusWrap}>
+                <StatusIcon color={statusColor} size={14} />
+                <Text style={[styles.statusText, { color: statusColor }]}>
+                  {result.status}
                 </Text>
               </View>
+            </View>
+          </View>
+        </View>
 
-              <Text style={styles.qText}>{ans.questionText}</Text>
+        {/* Answers Breakdown */}
+        <Text style={styles.sectionTitle}>Answers Breakdown</Text>
 
+        {result.answers.map((ans, index) => {
+          const isWritten = ans.type === "Written";
+          const isCorrect = ans.isCorrect;
+
+          return (
+            <View
+              key={index}
+              style={[
+                styles.answerCard,
+                {
+                  borderLeftColor: isWritten
+                    ? "#D97706"
+                    : isCorrect
+                      ? "#16A34A"
+                      : COLORS.error,
+                },
+              ]}
+            >
+              {/* Question Header */}
+              <View style={styles.qHeader}>
+                <Text style={styles.qNumber}>
+                  Q{index + 1} — {ans.type}
+                </Text>
+                <View style={styles.marksWrap}>
+                  {isWritten ? (
+                    <Text style={styles.pendingText}>Pending Review</Text>
+                  ) : isCorrect ? (
+                    <Text style={styles.correctText}>
+                      Correct ({ans.marks}/{ans.maxMarks})
+                    </Text>
+                  ) : (
+                    <Text style={styles.wrongText}>
+                      Wrong ({ans.marks}/{ans.maxMarks})
+                    </Text>
+                  )}
+                </View>
+              </View>
+
+              {/* Question Text */}
+              <Text style={styles.questionText}>{ans.questionText}</Text>
+
+              {/* User Answer */}
               <View style={styles.ansRow}>
                 <Text style={styles.ansLabel}>Your Answer:</Text>
                 <Text
                   style={[
                     styles.ansText,
-                    !ans.isCorrect &&
-                      ans.type !== "Written" && { color: COLORS.error },
+                    !isCorrect && !isWritten && { color: COLORS.error },
                   ]}
                 >
-                  {ans.userAnswer || "(Not answered)"}
+                  {ans.userAnswer || "(Not Answered)"}
                 </Text>
               </View>
 
-              {!ans.isCorrect && ans.type !== "Written" && (
+              {/* Correct Answer */}
+              {!isWritten && (
                 <View style={styles.ansRow}>
                   <Text style={styles.ansLabel}>Correct Answer:</Text>
                   <Text style={[styles.ansText, { color: "#16A34A" }]}>
@@ -146,7 +187,8 @@ export default function ResultDetailScreen() {
                 </View>
               )}
             </View>
-          ))}
+          );
+        })}
       </ScrollView>
     </View>
   );
@@ -161,93 +203,102 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.mist,
   },
   errorText: { fontFamily: FONTS.regular, fontSize: 14, color: COLORS.error },
+
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: SPACING.md,
+    paddingHorizontal: SPACING.md,
+    paddingBottom: SPACING.md,
     backgroundColor: COLORS.surface,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.line,
   },
   backBtn: { padding: 4 },
-  headerTitle: { fontFamily: FONTS.semiBold, fontSize: 18, color: COLORS.navy },
-  content: { padding: SPACING.md },
-  summaryCard: {
-    backgroundColor: COLORS.surface,
-    borderWidth: 1,
-    borderColor: COLORS.line,
-    borderRadius: RADIUS.card,
-    padding: SPACING.lg,
-    alignItems: "center",
-    marginBottom: SPACING.lg,
-  },
-  examTitle: {
+  headerTitle: {
     fontFamily: FONTS.semiBold,
-    fontSize: 18,
+    fontSize: 16,
     color: COLORS.navy,
-    marginBottom: SPACING.md,
+    flex: 1,
     textAlign: "center",
   },
-  scoreRow: {
+
+  content: { padding: SPACING.md, paddingBottom: 40 },
+
+  // Summary Card Styles
+  summaryCard: {
+    backgroundColor: "#FFF5F5", // Light red background
+    borderRadius: RADIUS.card,
+    padding: SPACING.md,
+    borderWidth: 1,
+    borderColor: "#FECACA",
+    marginBottom: SPACING.lg,
+  },
+  summaryRow: { flexDirection: "row", justifyContent: "space-between" },
+  summaryCol: { flex: 1 },
+  summaryLabel: {
+    fontFamily: FONTS.medium,
+    fontSize: 10,
+    color: COLORS.muted,
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  summaryValue: { fontFamily: FONTS.semiBold, fontSize: 15, color: COLORS.ink },
+  summaryValueBold: {
+    fontFamily: FONTS.semiBold,
+    fontSize: 16,
+    color: COLORS.navy,
+  },
+  statusWrap: {
     flexDirection: "row",
     alignItems: "center",
-    gap: SPACING.md,
-    marginBottom: 8,
+    gap: 4,
+    marginTop: 2,
   },
-  score: { fontFamily: FONTS.semiBold, fontSize: 32, color: COLORS.blue },
-  statusWrap: { flexDirection: "row", alignItems: "center", gap: 4 },
-  status: { fontFamily: FONTS.semiBold, fontSize: 16 },
-  percentage: { fontFamily: FONTS.medium, fontSize: 14, color: COLORS.muted },
+  statusText: {
+    fontFamily: FONTS.semiBold,
+    fontSize: 14,
+    textTransform: "capitalize",
+  },
 
   sectionTitle: {
     fontFamily: FONTS.semiBold,
     fontSize: 16,
     color: COLORS.navy,
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.sm,
   },
+
+  // Answer Card Styles
   answerCard: {
     backgroundColor: COLORS.surface,
-    borderWidth: 1,
-    borderColor: COLORS.line,
     borderRadius: RADIUS.card,
     padding: SPACING.md,
     marginBottom: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.line,
+    borderLeftWidth: 4, // Yeh border color dynamic hai
   },
   qHeader: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 12,
   },
-  qNumber: {
-    fontFamily: FONTS.semiBold,
-    fontSize: 14,
-    color: COLORS.navy,
-    marginRight: 8,
-  },
-  qType: {
-    fontFamily: FONTS.medium,
-    fontSize: 11,
-    color: COLORS.blue,
-    backgroundColor: COLORS.mist,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-    flex: 1,
-    maxWidth: 100,
-    textAlign: "center",
-  },
-  qMarks: { fontFamily: FONTS.semiBold, fontSize: 12, marginLeft: "auto" },
-  qText: {
+  qNumber: { fontFamily: FONTS.semiBold, fontSize: 13, color: COLORS.navy },
+  marksWrap: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
+  correctText: { fontFamily: FONTS.semiBold, fontSize: 11, color: "#16A34A" },
+  wrongText: { fontFamily: FONTS.semiBold, fontSize: 11, color: COLORS.error },
+  pendingText: { fontFamily: FONTS.semiBold, fontSize: 11, color: "#D97706" },
+
+  questionText: {
     fontFamily: FONTS.medium,
     fontSize: 15,
     color: COLORS.ink,
-    marginBottom: SPACING.sm,
+    marginBottom: 16,
+    lineHeight: 22,
   },
-  ansRow: {
-    flexDirection: "row",
-    marginTop: 4,
-  },
+
+  ansRow: { flexDirection: "row", marginBottom: 8 },
   ansLabel: {
     fontFamily: FONTS.semiBold,
     fontSize: 13,

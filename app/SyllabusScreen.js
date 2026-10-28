@@ -12,6 +12,7 @@ import {
   UIManager,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
 import {
   BookOpen,
   ChevronDown,
@@ -23,7 +24,7 @@ import {
 import { getCourses, getSubjects, getLessons } from "../lib/api";
 import { COLORS, FONTS, SPACING, RADIUS } from "../constants/theme";
 
-// Android me LayoutAnimation enable karne ke liye
+// Enable LayoutAnimation on Android
 if (
   Platform.OS === "android" &&
   UIManager.setLayoutAnimationEnabledExperimental
@@ -33,11 +34,12 @@ if (
 
 export default function SyllabusScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
 
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // States to track kya khula hua hai
+  // Track the currently expanded course and subject
   const [expandedCourse, setExpandedCourse] = useState(null);
   const [subjects, setSubjects] = useState({});
   const [loadingSubjects, setLoadingSubjects] = useState(false);
@@ -70,7 +72,7 @@ export default function SyllabusScreen() {
 
     setExpandedCourse(courseId);
 
-    // Agar subjects pehle se load nahi hain, toh fetch karo
+    // Fetch subjects if they have not been loaded yet
     if (!subjects[courseId]) {
       setLoadingSubjects(true);
       try {
@@ -94,7 +96,7 @@ export default function SyllabusScreen() {
 
     setExpandedSubject(subjectId);
 
-    // Agar lessons pehle se load nahi hain, toh fetch karo
+    // Fetch lessons if they have not been loaded yet
     if (!lessons[subjectId]) {
       setLoadingLessons(true);
       try {
@@ -108,11 +110,13 @@ export default function SyllabusScreen() {
     }
   };
 
-  const openPdf = (url) => {
-    if (url) {
-      Linking.openURL(url).catch((err) => console.log("PDF open error:", err));
-    }
-  };
+    const openPdf = (url, title) => {
+      if (url) {
+        navigation
+          .getParent()
+          ?.navigate("PdfViewer", { pdfUrl: url, title: title });
+      }
+    };
 
   if (loading) {
     return (
@@ -237,14 +241,16 @@ export default function SyllabusScreen() {
                                     {lesson.pdfUrl ? (
                                       <TouchableOpacity
                                         style={styles.pdfBtn}
-                                        onPress={() => openPdf(lesson.pdfUrl)}
+                                        onPress={() =>
+                                          openPdf(lesson.pdfUrl, lesson.title)
+                                        } // 👈 yahan title bhi pass karo
                                       >
                                         <FileText
                                           color={COLORS.surface}
                                           size={16}
                                         />
                                         <Text style={styles.pdfBtnText}>
-                                          PDF
+                                          View PDF
                                         </Text>
                                       </TouchableOpacity>
                                     ) : null}

@@ -1,7 +1,7 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Home, FileText, BookOpen, User } from "lucide-react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context"; // <-- Naya import
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS, FONTS } from "../constants/theme";
 
 import HomeScreen from "./HomeScreen";
@@ -12,7 +12,7 @@ import ProfileScreen from "./ProfileScreen";
 const Tab = createBottomTabNavigator();
 
 export default function TabNavigator({ setAuth }) {
-  const insets = useSafeAreaInsets(); // <-- Safe area check kiya
+  const insets = useSafeAreaInsets();
 
   return (
     <Tab.Navigator
@@ -22,8 +22,8 @@ export default function TabNavigator({ setAuth }) {
           backgroundColor: COLORS.surface,
           borderTopWidth: 1,
           borderTopColor: COLORS.line,
-          height: 60 + insets.bottom, // <-- Height badhayi
-          paddingBottom: insets.bottom > 0 ? insets.bottom + 8 : 12, // <-- Padding set ki
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom > 0 ? insets.bottom + 8 : 12,
           paddingTop: 8,
         },
         tabBarActiveTintColor: COLORS.navy,

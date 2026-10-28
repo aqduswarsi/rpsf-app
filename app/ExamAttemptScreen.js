@@ -37,7 +37,7 @@ export default function ExamAttemptScreen() {
   // Timer state
   const [timeLeft, setTimeLeft] = useState(0);
 
-  // Success screen ke liye result data
+  // Result data for the success screen
   const [resultData, setResultData] = useState(null);
 
   // 1. Fetch Exam Data
@@ -108,7 +108,7 @@ export default function ExamAttemptScreen() {
 
       const response = await submitUserExam(exam._id, formattedAnswers);
 
-      // Alert hatakar State me save kar rahe hain taaki Score Card dikhe
+      // Store the result in state to display the scorecard
       setResultData(response.data || response);
     } catch (err) {
       Alert.alert("Error", err.message || "Failed to submit exam.");

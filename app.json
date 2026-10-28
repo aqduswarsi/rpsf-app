@@ -15,7 +15,8 @@
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+      },
+      "package": "com.vanshtiwa.rpsfapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -23,8 +24,28 @@
     "plugins": [
       "expo-status-bar",
       "expo-font",
-      "expo-splash-screen",
-      "expo-asset"
-    ]
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "backgroundColor": "#EAF4FC",
+          "imageWidth": 200,
+          "android": {
+            "resizeMode": "contain"
+          },
+          "ios": {
+            "resizeMode": "cover",
+            "enableFullScreenImage_legacy": true
+          }
+        }
+      ],
+      "expo-asset",
+      "expo-sharing"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f8ac2f70-7c7f-4ddf-a11e-9c3f27e24230"
+      }
+    }
   }
 }

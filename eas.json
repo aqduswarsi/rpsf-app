@@ -1,0 +1,29 @@
+{
+  "cli": {
+    "version": ">= 24.6.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "node": "18.18.0"
+    },
+    "production": {
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "node": "18.18.0"
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
