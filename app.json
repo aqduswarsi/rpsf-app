@@ -30,13 +30,7 @@
           "image": "./assets/splash-icon.png",
           "backgroundColor": "#EAF4FC",
           "imageWidth": 200,
-          "android": {
-            "resizeMode": "contain"
-          },
-          "ios": {
-            "resizeMode": "cover",
-            "enableFullScreenImage_legacy": true
-          }
+          "resizeMode": "contain"
         }
       ],
       "expo-asset",

@@ -26,12 +26,41 @@ import {
 import { getUserExams, submitReattemptRequest } from "../lib/api";
 import { COLORS, FONTS, SPACING, RADIUS } from "../constants/theme";
 
+const initialCurrentTime = Date.now();
+
+const getTimingStatus = (exam, currentTime) => {
+  const startTime = exam.startTime ? Date.parse(exam.startTime) : NaN;
+  const endTime = exam.endTime ? Date.parse(exam.endTime) : NaN;
+
+  if (Number.isFinite(startTime) && currentTime < startTime) {
+    return "not_started";
+  }
+  if (Number.isFinite(endTime) && currentTime > endTime) {
+    return "ended";
+  }
+  return "available";
+};
+
+const formatCountdown = (targetTime, currentTime) => {
+  const totalSeconds = Math.max(
+    0,
+    Math.floor((targetTime - currentTime) / 1000),
+  );
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${days > 0 ? `${days}d ` : ""}${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}m ${String(seconds).padStart(2, "0")}s`;
+};
+
 export default function ExamsScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
 
   const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentTime, setCurrentTime] = useState(initialCurrentTime);
 
   // Reattempt Modal State
   const [modalVisible, setModalVisible] = useState(false);
@@ -51,7 +80,33 @@ export default function ExamsScreen() {
   };
 
   useEffect(() => {
-    loadExams();
+    let cancelled = false;
+
+    async function loadInitialExams() {
+      try {
+        const data = await getUserExams();
+        if (!cancelled) setExams(data);
+      } catch (err) {
+        if (!cancelled) console.log("Error loading exams:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadInitialExams();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const refreshClock = () => setCurrentTime(Date.now());
+    const initialRefresh = setTimeout(refreshClock, 0);
+    const timer = setInterval(refreshClock, 1000);
+    return () => {
+      clearTimeout(initialRefresh);
+      clearInterval(timer);
+    };
   }, []);
 
   const openReattemptModal = (exam) => {
@@ -93,8 +148,11 @@ export default function ExamsScreen() {
   }
 
   const renderItem = ({ item }) => {
-    const canAttempt = item.canAttempt;
-    const requestStatus = item.requestStatus; // 'pending', 'approved', or null
+    const timingStatus = getTimingStatus(item, currentTime);
+    const canAttempt =
+      timingStatus === "available" &&
+      (!item.attempted || item.requestStatus === "approved");
+    const requestStatus = item.requestStatus;
 
     return (
       <View style={[styles.card, !canAttempt && { opacity: 0.8 }]}>
@@ -123,7 +181,21 @@ export default function ExamsScreen() {
         </View>
 
         <View style={styles.footer}>
-          {canAttempt ? (
+          {timingStatus === "not_started" ? (
+            <View style={styles.timingStatus}>
+              <Text style={styles.timingText}>
+                Starts in:{" "}
+                {formatCountdown(Date.parse(item.startTime), currentTime)}
+              </Text>
+              <View style={[styles.statusBadge, styles.disabledStatusBadge]}>
+                <Text style={styles.disabledStatusText}>Not Started Yet</Text>
+              </View>
+            </View>
+          ) : timingStatus === "ended" ? (
+            <View style={[styles.statusBadge, styles.endedStatusBadge]}>
+              <Text style={styles.endedStatusText}>Exam Ended</Text>
+            </View>
+          ) : canAttempt ? (
             <TouchableOpacity
               style={styles.startBtn}
               onPress={() =>
@@ -319,6 +391,31 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   statusText: { fontFamily: FONTS.semiBold, fontSize: 12, color: "#92400E" },
+
+  timingStatus: { alignItems: "flex-end", gap: 8 },
+  timingText: {
+    fontFamily: FONTS.semiBold,
+    fontSize: 12,
+    color: COLORS.blue,
+    backgroundColor: "#EFF6FF",
+    borderWidth: 1,
+    borderColor: COLORS.blueLight,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+  },
+  disabledStatusBadge: { backgroundColor: "#EFF6FF" },
+  disabledStatusText: {
+    fontFamily: FONTS.semiBold,
+    fontSize: 12,
+    color: COLORS.blue,
+  },
+  endedStatusBadge: { backgroundColor: "#FEF2F2" },
+  endedStatusText: {
+    fontFamily: FONTS.semiBold,
+    fontSize: 12,
+    color: COLORS.error,
+  },
 
   reattemptBtn: {
     flexDirection: "row",

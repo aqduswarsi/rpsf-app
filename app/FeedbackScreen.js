@@ -27,7 +27,6 @@ import {
   getMyFeedbacks,
   getUserProfile,
   updateMyFeedback,
-  deleteMyFeedback,
 } from "../lib/api";
 import { COLORS, FONTS, SPACING, RADIUS } from "../constants/theme";
 
@@ -645,7 +644,6 @@ export default function FeedbackScreen() {
               </Text>
             )}
 
-            {/* 👇 EDIT AND DELETE BUTTONS with FULL LOGIC */}
             <View style={styles.actionRow}>
               <TouchableOpacity
                 style={[styles.actionBtn, { borderColor: COLORS.blue }]}
@@ -689,48 +687,6 @@ export default function FeedbackScreen() {
                   }}
                 >
                   Edit
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.actionBtn, { borderColor: COLORS.error }]}
-                onPress={() => {
-                  Alert.alert(
-                    "Delete Feedback",
-                    "Are you sure you want to delete this feedback?",
-                    [
-                      { text: "Cancel", style: "cancel" },
-                      {
-                        text: "Delete",
-                        style: "destructive",
-                        onPress: async () => {
-                          try {
-                            await deleteMyFeedback(item._id);
-                            Alert.alert(
-                              "Deleted",
-                              "Feedback deleted successfully",
-                            );
-                            loadFeedbacks();
-                          } catch (err) {
-                            Alert.alert(
-                              "Error",
-                              err.message || "Failed to delete",
-                            );
-                          }
-                        },
-                      },
-                    ],
-                  );
-                }}
-              >
-                <Text
-                  style={{
-                    color: COLORS.error,
-                    fontFamily: FONTS.medium,
-                    fontSize: 12,
-                  }}
-                >
-                  Delete
                 </Text>
               </TouchableOpacity>
             </View>

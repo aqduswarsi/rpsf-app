@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -21,6 +21,30 @@ import {
 import { getExamById, submitUserExam } from "../lib/api";
 import { COLORS, FONTS, SPACING, RADIUS } from "../constants/theme";
 
+async function submitExamRequest({
+  exam,
+  answers,
+  submitting,
+  setSubmitting,
+  setResultData,
+}) {
+  if (!exam || submitting) return;
+
+  try {
+    setSubmitting(true);
+    const formattedAnswers = exam.questions.map((q) => ({
+      questionId: q._id,
+      userAnswer: answers[q._id] || "",
+    }));
+
+    const response = await submitUserExam(exam._id, formattedAnswers);
+    setResultData(response.data || response);
+  } catch (err) {
+    Alert.alert("Error", err.message || "Failed to submit exam.");
+    setSubmitting(false);
+  }
+}
+
 export default function ExamAttemptScreen() {
   const insets = useSafeAreaInsets();
   const route = useRoute();
@@ -36,6 +60,8 @@ export default function ExamAttemptScreen() {
 
   // Timer state
   const [timeLeft, setTimeLeft] = useState(0);
+  const [deadline, setDeadline] = useState(null);
+  const autoSubmitAttempted = useRef(false);
 
   // Result data for the success screen
   const [resultData, setResultData] = useState(null);
@@ -46,7 +72,17 @@ export default function ExamAttemptScreen() {
       try {
         const data = await getExamById(examId);
         setExam(data);
-        setTimeLeft((data.duration || 30) * 60); // duration in minutes
+        const durationSeconds = (Number(data.duration) || 30) * 60;
+        const endTime = data.endTime ? Date.parse(data.endTime) : NaN;
+        const durationDeadline = Date.now() + durationSeconds * 1000;
+        const examDeadline = Number.isFinite(endTime)
+          ? Math.min(durationDeadline, endTime)
+          : durationDeadline;
+        autoSubmitAttempted.current = false;
+        setDeadline(examDeadline);
+        setTimeLeft(
+          Math.max(0, Math.ceil((examDeadline - Date.now()) / 1000)),
+        );
       } catch (err) {
         Alert.alert("Error", err.message || "Could not load exam");
         navigation.goBack();
@@ -55,25 +91,7 @@ export default function ExamAttemptScreen() {
       }
     }
     loadExam();
-  }, [examId]);
-
-  // 2. Timer Logic (Auto Submit)
-  useEffect(() => {
-    if (timeLeft <= 0 || loading || submitting || resultData) return;
-
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          submitExam(true); // true denotes auto-submit
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeLeft, loading, submitting, resultData]);
+  }, [examId, navigation]);
 
   const handleSelectOption = (qId, option) => {
     setAnswers((prev) => ({ ...prev, [qId]: option }));
@@ -92,29 +110,48 @@ export default function ExamAttemptScreen() {
   const handleSubmit = () => {
     Alert.alert("Submit Exam", "Are you sure you want to submit your exam?", [
       { text: "Cancel", style: "cancel" },
-      { text: "Submit", onPress: () => submitExam(false) },
+      {
+        text: "Submit",
+        onPress: () =>
+          submitExamRequest({
+            exam,
+            answers,
+            submitting,
+            setSubmitting,
+            setResultData,
+          }),
+      },
     ]);
   };
 
-  const submitExam = async (isAuto = false) => {
-    if (submitting) return;
+  // Keep the exam timer aligned with the exam end time as well as its duration.
+  useEffect(() => {
+    if (deadline === null || loading || submitting || resultData) return;
 
-    try {
-      setSubmitting(true);
-      const formattedAnswers = exam.questions.map((q) => ({
-        questionId: q._id,
-        userAnswer: answers[q._id] || "",
-      }));
+    const timer = setInterval(() => {
+      const remaining = Math.max(
+        0,
+        Math.ceil((deadline - Date.now()) / 1000),
+      );
+      setTimeLeft(remaining);
 
-      const response = await submitUserExam(exam._id, formattedAnswers);
+      if (remaining === 0) {
+        clearInterval(timer);
+        if (!autoSubmitAttempted.current) {
+          autoSubmitAttempted.current = true;
+          submitExamRequest({
+            exam,
+            answers,
+            submitting,
+            setSubmitting,
+            setResultData,
+          });
+        }
+      }
+    }, 1000);
 
-      // Store the result in state to display the scorecard
-      setResultData(response.data || response);
-    } catch (err) {
-      Alert.alert("Error", err.message || "Failed to submit exam.");
-      setSubmitting(false);
-    }
-  };
+    return () => clearInterval(timer);
+  }, [answers, deadline, exam, loading, resultData, submitting]);
 
   if (loading) {
     return (
